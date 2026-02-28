@@ -1,0 +1,22 @@
+{
+    "name": "ledger-buddy-backend",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "wrangler dev",
+        "deploy": "wrangler deploy",
+        "typecheck": "tsc --noEmit",
+        "d1:migrate": "wrangler d1 migrations apply ledger_buddy_d1 --local"
+    },
+    "dependencies": {
+        "chanfana": "^2.7.0",
+        "hono": "^4.8.2",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^4.20260215.0",
+        "typescript": "^5.7.3",
+        "wrangler": "^3.99.0"
+    }
+}

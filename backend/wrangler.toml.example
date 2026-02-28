@@ -1,0 +1,14 @@
+name = "ledger-buddy-api"
+main = "src/index.ts"
+compatibility_date = "2026-02-24"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ledger_buddy_d1"
+database_id = "REPLACE_ME"
+
+[vars]
+APP_NAME = "LedgerBuddy API"
+MQTT_TOPIC_PREFIX = "voicebox"
+DEFAULT_TZ = "Asia/Kolkata"
+DEFAULT_CURRENCY = "INR"
