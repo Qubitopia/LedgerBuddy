@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-# LedgerBuddy
-=======
 # LedgerBuddy
 
 UPI payment voice box + voice command system.
@@ -18,4 +15,3 @@ UPI payment voice box + voice command system.
 4. Create D1 and set `database_id` in `wrangler.toml`.
 5. Apply migrations: `npx wrangler d1 migrations apply ledger_buddy_d1 --local` use --remote for cloud.
 6. Start local worker: `wrangler dev`
->>>>>>> Stashed changes
