@@ -77,10 +77,16 @@ function buildConnectPacket(clientId: string, username: string, password: string
 function buildPublishPacket(topic: string, message: string): Uint8Array {
 	const topicBytes = encodeUtf8String(topic);
 	const payload = encoder.encode(message);
-	const remaining = encodeRemainingLength(topicBytes.length + payload.length);
-	const fixedHeader = Uint8Array.from([0x30]);
 
-	return concatBytes([fixedHeader, remaining, topicBytes, payload]);
+	const packetId = Uint8Array.from([0x00, 0x01]);
+
+	const remaining = encodeRemainingLength(
+		topicBytes.length + packetId.length + payload.length
+	);
+
+	const fixedHeader = Uint8Array.from([0x32]);
+
+	return concatBytes([fixedHeader, remaining, topicBytes, packetId, payload]);
 }
 
 async function readConnAck(reader: ReadableStreamDefaultReader<Uint8Array>): Promise<MqttConnAck> {

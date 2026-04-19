@@ -191,6 +191,7 @@ export class VoiceCommand extends OpenAPIRoute {
     async handle(c: AppContext) {
         const deepgramApiKey = c.env.DEEPGRAM_API_KEY;
         const geminiApiKey = c.env.GEMINI_API_KEY;
+
         if (!deepgramApiKey || !geminiApiKey) {
             return Response.json(
                 { success: false, error: "Missing DEEPGRAM_API_KEY or GEMINI_API_KEY" },
@@ -208,28 +209,32 @@ export class VoiceCommand extends OpenAPIRoute {
             return Response.json({ success: false, error: "Uploaded audio body is empty" }, { status: 400 });
         }
 
-        try {
-            const transcript = await transcribeWithDeepgram(audioBuffer, contentType, deepgramApiKey);
-            const modelIntentResponse = await classifyIntentWithGemini(transcript, geminiApiKey);
-            const parsedIntentId = extractIntentNumber(modelIntentResponse);
-            const knownIntentId = INTENTS.some((intent) => intent.id === parsedIntentId) ? parsedIntentId : 0;
-            const execution = await executeIntent(c, knownIntentId);
+        c.executionCtx.waitUntil((async () => {
+            try {
+                const transcript = await transcribeWithDeepgram(audioBuffer, contentType, deepgramApiKey);
+                const modelIntentResponse = await classifyIntentWithGemini(transcript, geminiApiKey);
+                const parsedIntentId = extractIntentNumber(modelIntentResponse);
+                const knownIntentId = INTENTS.some((intent) => intent.id === parsedIntentId) ? parsedIntentId : 0;
+                const execution = await executeIntent(c, knownIntentId);
 
-            const mqttConfig = getMqttConfig(c);
-            await publishToMqtt(execution.mqttMessage, mqttConfig);
+                const mqttConfig = getMqttConfig(c);
+                await publishToMqtt(execution.mqttMessage, mqttConfig);
 
-            return {
-                success: true,
-                transcript,
-                modelIntentResponse,
-                intentId: execution.intentId,
-                intentName: execution.intentName,
-                mqttMessage: execution.mqttMessage,
-                metadata: execution.metadata,
-            };
-        } catch (error) {
-            const detail = error instanceof Error ? error.message : "unknown voice command processing error";
-            return Response.json({ success: false, error: detail }, { status: 500 });
-        }
+                // Optional: log or store result in DB
+                console.log("Background processing done:", {
+                    transcript,
+                    intent: execution.intentName,
+                });
+            } catch (err) {
+                console.error("Background processing failed:", err);
+            }
+        })());
+
+        // 🚀 Immediate response
+        return Response.json({
+            success: true,
+            status: "processing",
+            message: "Audio received. Processing in background.",
+        });
     }
 }
